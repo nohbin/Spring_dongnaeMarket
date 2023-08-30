@@ -45,8 +45,19 @@
 	    <websocket:handshake-interceptors>
 	        <beans:bean class="org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor"/>
 	    </websocket:handshake-interceptors>
-	    <websocket:sockjs />
+	    <!-- <websocket:sockjs /> -->
 	</websocket:handlers>
+	
+		<websocket:message-broker application-destination-prefix="/pub">
+		<websocket:stomp-endpoint path="/ws-stomp">
+			<!-- 클라이언트가 WebSocket에 연결할 경로 설정 -->
+			<websocket:sockjs />
+			<!-- SockJS 지원을 활성화하여 WebSocket을 지원하지 않는 브라우저에서 대체 가능한 방법을 제공 -->
+		</websocket:stomp-endpoint>
+		<websocket:simple-broker prefix="/sub" />
+		<!-- SimpleBroker를 사용하여 메시지를 구독하고 발행하는 데 사용되는 주제(prefix) 설정 -->
+	</websocket:message-broker>
+		<!-- WebSocket 설정 끝 -->
 
 
 </beans:beans>
