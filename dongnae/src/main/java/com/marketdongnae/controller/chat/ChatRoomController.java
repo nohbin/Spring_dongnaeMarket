@@ -54,4 +54,13 @@ public class ChatRoomController {
 		model.addAttribute("room",chatService.findRoomById(roomId));
     return "/chat/room";
 	}
+	
+	@PostMapping("/findUserName")
+	@ResponseBody
+	public String findUserName(@RequestBody String findUserName) {
+		System.out.println(findUserName);
+		System.out.println("mmmmmmmmmmmmmmmmmmmmmmmmm");
+		String user =chatService.findUserName(findUserName.replace("=", ""));
+		return user;
+	}
 }

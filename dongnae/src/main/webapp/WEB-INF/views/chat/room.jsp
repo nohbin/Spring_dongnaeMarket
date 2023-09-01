@@ -10,13 +10,36 @@
 <script	src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
 <script	src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<!-- <script src="/resources/js/chat/main.js"></script> -->
 <script type="text/javascript">
 $(document).ready(function(){
+	const $msg = document.getElementById("msg");
+    const $send= document.getElementById("button-send");
+    
+    var image= '';
+    var imageDM = "<button type='button' id='button-send'>"+"<img src='/resources/img/chat/DM.png' class='dm-icon' id='buy' alt=''>"+"</button>";
+    var imageBUY = "<button type='button' id='button-send'>"+"<img src='/resources/img/chat/buy.png' class='dm-icon' id='buy' alt=''>"+"</button>";
+    
+    $msg.addEventListener('input',(event)=>{
+    	if(event.target.value!==''){
+    		if(image==="<img src='/resources/img/chat/dm.png' class='dm-icon' alt=''>"){
+    			return;
+    		}
+    		
+            image="<img src='/resources/img/chat/dm.png' class='dm-icon' alt=''>";
+	        $send.firstElementChild.remove();
+            $("#button-send").append(image);
+        }else{
+			image="<img src='/resources/img/chat/buy.png' class='dm-icon' id='buy' alt=''>"
+			$send.firstElementChild.remove();
+			$("#button-send").append(image);
+		}
+	});
 
+    
     var roomName = '${room.name}';
     var username = '${member.getM_name()}';
     var roomId = '${room.roomId}';
-    
     
 
     console.log(roomName + ", " + roomId + ", " + username);
@@ -64,83 +87,192 @@ $(document).ready(function(){
            }  
        });
        
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       var  payment = '결제함수~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~';
+       
+       
+       
+       
+       
        const $buy = document.getElementById('buy');
        $buy.addEventListener("click", ()=>{
-    	   str = "<li class='me'>";
-    	   str += "<div>송금하기";
-    	   str += "</div></li>";
-       }); 
+    	   stomp.send('/pub/chat/message', {}, JSON.stringify({roomId: roomId, message: payment, writer: username}));
+       });
+       
+       
+       
+       
+       
+      
+       
+       
+       
+       
+       
+       
+       
+
+       
+       
+
 
        //3. send(path, header, message)로 메세지를 보낼 수 있음
        stomp.send('/pub/chat/enter', {}, JSON.stringify({roomId: roomId, writer: username}))
     });
+    $(".dm-icon")
+    
 
-    $("#button-send").on("click", function(e){
+   $("#button-send").on("click", function(e){
         var msg = document.getElementById("msg");
 
         console.log(username + ":" + msg.value);
         stomp.send('/pub/chat/message', {}, JSON.stringify({roomId: roomId, message: msg.value, writer: username}));
         msg.value = '';
+        $send.firstElementChild.remove();
+        image="<img src='/resources/img/chat/buy.png' class='dm-icon' id='buy' alt=''>"
+        $send.innerHTML = image;
+    });
+    $("#msg").on("keydown", function(e) {
+        if (e.key === "Enter") {  
+            e.preventDefault();
+
+            var msg = document.getElementById("msg");
+            
+
+            console.log(username + ":" + msg.value);
+            stomp.send('/pub/chat/message', {}, JSON.stringify({roomId: roomId, message: msg.value, writer: username}));
+            msg.value = '';
+
+            $send.firstElementChild.remove();
+            image = "<img src='/resources/img/chat/buy.png' class='dm-icon' id='buy' alt=''>";
+            $send.innerHTML = image;
+			
+            return false;
+        }
     });
     
     
 });
+</script>
+<script type="text/javascript">
+
+
+$(document).ready(()=>{
+    $("#searchUser").on("keydown",(e)=>{
+        if(e.key === "Enter"){
+            e.preventDefault();
+            let findUserName = e.target.value;
+            e.target.value='';
+            console.log(findUserName);
+            var $userPlusButton =document.getElementById('userPlusButton');
+            
+            $.ajax({
+				url:'./findUserName',
+				type: 'POST',
+				data: findUserName,
+				contentType: "application/json",
+				success:(response)=>{
+					console.log(response);
+					if(response == 'find'){
+		                UserSearchButton = "<button type='button' class='plusUser' id='plusUser'>";
+		                UserSearchButton += "<img src='/resources/img/chat/plus.png' class='plus' src=''>";
+		                UserSearchButton += "</button>";
+		                $("#userPlusButton").append(UserSearchButton);
+					}
+					else{
+						alert("이름을 확인해 주세요.");
+						if($userPlusButton.firstChild){
+		                	$userPlusButton.removeChild($userPlusButton.firstChild);
+		                console.log('false');
+		                }
+
+					}
+				},error:(data)=>{
+					alert(data);
+				}
+			});
+            
+
+            return false;
+        }
+    });
+    
+});
 
 </script>
+
 <body>
-    <div id="container">
-        <aside>
-          <header>
-            <input type="text" placeholder="search">
-            <img src="/resources/img/chat/plus.png" style="width: 50px; height: 50px; vertical-align: bottom" src="">
-          </header>
-          <ul>
+	<div class="container" style="background-color: #eff3f7;">
+		<aside>
+		
+			<header>
+				<div id="userPlusButton"></div>
+				<input type="text" id="searchUser" placeholder="search"> 
+			</header>
+
+			<ul>
             <!-- 비 접송 중 -->
-            <li>
-              <img src="/resources/img/chat/user.png" alt="">
-              <div>
-                <h2>offline user</h2>
-                <h3>
-                  <span class="status orange"></span>
-                  offline
-                </h3>
-              </div>
-            </li>
+				<li>
+					<img src="/resources/img/chat/user.png" alt="">
+					<div>
+						<h2>offline user</h2>
+						<h3>
+							<span class="status orange"></span>
+							offline
+						</h3>
+					</div>
+				</li>
             <!-- 접속 중 -->
-            <li>
-              <img src="/resources/img/chat/user.png" alt="">
-              <div>
-                <h2>on user</h2>
-                <h3>
-                  <span class="status green"></span>
-                  online
-                </h3>
-              </div>
-            </li>
-        </aside>
+				<li>
+					<img src="/resources/img/chat/user.png" alt="">
+					<div>
+						<h2>on user</h2>
+						<h3>
+							<span class="status green"></span>
+							online
+						</h3>
+					</div>
+				</li>
+			</ul>
+		</aside>
 
 		<main>
-          <header>
-            <img src="/resources/img/chat/user.png" alt="">
-            <div>
-              <h2>${member.m_number}</h2>
-            </div>
-          </header>
+			<header>
+				<img src="/resources/img/chat/user.png" alt="">
+				<div>
+					<h2>${member.m_name}</h2>
+				</div>
+			</header>
 		
 		
 			<!-- 메시지 전송 및 받기 -->
 			<div class="body" style="vertical-align: bottom">
 				<ul id="chat"></ul>
 			</div>
-          
-			<footer>
-				<textarea id="msg" placeholder="입력하시오"></textarea>
-				<img id="buy" src="/resources/img/chat/buy.png" alt="">
-				<button type="button" id="button-send" style="display: inline-block; margin: 0 5px;  float: right;">
-					<img src="/resources/img/chat/dm.png" class="dm-icon" alt="">
-				</button>
 
+			<footer>
+			<div id="Buy-Send">
+				<button type="button" id="button-send" >
+					<img src="/resources/img/chat/buy.png" class="dm-icon" id='buy' alt="">
+				</button>
+			</div>
+				
+				<textarea id="msg" placeholder="입력하시오"></textarea>
 			</footer>
+			
 		</main>
 	</div>
 </body>

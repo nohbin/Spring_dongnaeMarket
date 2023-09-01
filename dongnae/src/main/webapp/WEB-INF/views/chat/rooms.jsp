@@ -16,7 +16,7 @@ $(document).ready(()=>{
 		
 		var titles = document.getElementById("title").value;
 
-		
+		console.log(title);
 		if (titles !== "") {
 			alert(titles + " 방이 개설되었습니다.");
 			
